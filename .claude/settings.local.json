@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create *)",
+      "Bash(yes)",
+      "Bash(npx --yes create-vite@latest my-app --template react)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(npm install *)",
+      "Bash(find /private/tmp/claude-501 -iname \"*.png\" -newer /Users/gyan/Desktop/MED-MART.IN/package.json 2>/dev/null | head -20 *)",
+      "Bash(find /tmp /private/var/folders -iname \"*.png\" -mmin -30 2>/dev/null | head -30)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"https://api.fontshare.com/v2/css?f[]=clash-display@600&display=swap\")",
+      "Bash(curl -sL -o /tmp/plane_test.mp4 \"https://drive.google.com/uc?export=download&id=1RLaJ1CCpT7VqC7zUPRhYogBfB3x9p8gW\" --max-time 30)",
+      "Read(//tmp/**)",
+      "Bash(cp /tmp/plane_test.mp4 \"/Users/gyan/Desktop/MED-MART.IN/public/media/plane-window.mp4\")",
+      "Bash(ffprobe -v error -show_entries stream=codec_type,codec_name,width,height,duration -of default=noprint_wrappers=1 \"/Users/gyan/Desktop/MED-MART.IN/public/media/plane-window.mp4\")",
+      "Bash(npm run *)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git rm *)",
+      "Bash(git -c user.name=gyan -c user.email=deepmishra9@hotmail.com commit -q -m ' *)"
+    ]
+  }
+}
