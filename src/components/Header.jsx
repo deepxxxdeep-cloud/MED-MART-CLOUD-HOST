@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Search, ChevronDown, Menu, X, Store } from "lucide-react";
 import { categoryMenu } from "../data/siteData";
 import Logo from "./Logo";
@@ -31,12 +32,18 @@ export default function Header() {
             <Store className="h-4 w-4" />
             Sell on Med-Mart
           </button>
-          <button className="glass rounded-lg px-4 py-2 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/20 active:translate-y-0">
+          <Link
+            to="/login"
+            className="glass rounded-lg px-4 py-2 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/20 active:translate-y-0"
+          >
             Login
-          </button>
-          <button className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-navy shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0">
+          </Link>
+          <Link
+            to="/signup"
+            className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-navy shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+          >
             Sign Up
-          </button>
+          </Link>
         </div>
 
         {/* Mobile menu toggle */}
@@ -119,12 +126,18 @@ export default function Header() {
               Sell on Med-Mart
             </button>
             <div className="flex gap-2">
-              <button className="glass flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold text-white">
+              <Link
+                to="/login"
+                className="glass flex-1 rounded-lg px-4 py-2.5 text-center text-sm font-semibold text-white"
+              >
                 Login
-              </button>
-              <button className="flex-1 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-navy">
+              </Link>
+              <Link
+                to="/signup"
+                className="flex-1 rounded-lg bg-white px-4 py-2.5 text-center text-sm font-semibold text-navy"
+              >
                 Sign Up
-              </button>
+              </Link>
             </div>
           </div>
         </div>

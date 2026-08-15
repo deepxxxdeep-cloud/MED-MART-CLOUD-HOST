@@ -152,6 +152,16 @@ export function LayoutGridGlyph() {
   );
 }
 
+export function StoreGlyph() {
+  return (
+    <>
+      <path d="M-10 -6 L-8 -11 h16 l2 5 a4 4 0 0 1 -7.5 2 a4 4 0 0 1 -8 0 a4 4 0 0 1 -2.5 -2 Z" />
+      <path d="M-8 -1 v11 h16 v-11" />
+      <path d="M-3 10 v-6 h6 v6" />
+    </>
+  );
+}
+
 export function XRayGlyph() {
   return (
     <>

@@ -17,7 +17,20 @@
       "Bash(git init *)",
       "Bash(git add *)",
       "Bash(git rm *)",
-      "Bash(git -c user.name=gyan -c user.email=deepmishra9@hotmail.com commit -q -m ' *)"
+      "Bash(git -c user.name=gyan -c user.email=deepmishra9@hotmail.com commit -q -m ' *)",
+      "Bash(node -e ' *)",
+      "Bash(openssl rand *)",
+      "Bash(sed 's|^JWT_SECRET=|JWT_SECRET=__TRACKED_VAR__|' .env.example)",
+      "Bash(docker run *)",
+      "Bash(node smoke-test.mjs)",
+      "Bash(node dev-memory.mjs)",
+      "Bash(curl -s http://localhost:5000/api/health)",
+      "Bash(curl -s -X POST http://localhost:5000/api/auth/signup -H 'Content-Type: application/json' -H 'Origin: http://localhost:5173' -d '{\"fullName\":\"Gyan\",\"email\":\"curl@example.com\",\"password\":\"StrongPass1\",\"confirmPassword\":\"StrongPass1\",\"role\":\"buyer\",\"acceptedTerms\":\"true\"}')",
+      "Bash(curl -s -o /dev/null -w \"health: %{http_code}\\\\n\" http://localhost:5000/api/health)",
+      "Bash(curl -s -o /dev/null -w \"vite: %{http_code}\\\\n\" http://localhost:5173/)",
+      "Bash(curl -s -I http://localhost:5000/)",
+      "Bash(pkill -f \"dev-memory.mjs\")",
+      "Bash(curl -s http://localhost:5001/api/health)"
     ]
   }
 }
