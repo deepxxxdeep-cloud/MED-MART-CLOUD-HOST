@@ -81,13 +81,23 @@ export default function SiteBackgroundVideo() {
     };
   }, []);
 
-  // Entering scrub mode: stop playback so seeking owns the playhead.
+  // Entering scrub mode: stop playback so seeking owns the playhead, and jump
+  // straight to wherever the page already is. Without this catch-up seek, a
+  // visitor who scrolled while the clip was still buffering would be left on
+  // whatever frame playback happened to reach, and would see nothing move
+  // until they scrolled again.
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    if (mode === "scrub") video.pause();
-    else video.play().catch(() => {});
-  }, [mode]);
+
+    if (mode === "scrub") {
+      video.pause();
+      const total = duration.current || video.duration;
+      if (total) video.currentTime = Math.min(Math.max(scrollYProgress.get(), 0), 1) * total;
+    } else {
+      video.play().catch(() => {});
+    }
+  }, [mode, scrollYProgress]);
 
   // Seeking on every scroll event overwhelms the decoder, so coalesce into one
   // seek per animation frame.
