@@ -171,3 +171,18 @@ h1, h2, h3, h4 {
 .ease-premium {
   transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+/* On touch devices the page is already doing per-frame work scrubbing the
+   background video. These decorative loops each keep a very large blurred
+   layer re-compositing forever, which competes for the same budget and shows
+   up as scroll stutter. Freezing them costs nothing visually — they are slow
+   ambient drifts — and hands the frame budget back to scrolling. */
+@media (hover: none), (prefers-reduced-motion: reduce) {
+  .animate-mesh,
+  .animate-float,
+  .animate-pulse-glow,
+  .animate-shimmer {
+    animation: none;
+    will-change: auto;
+  }
+}
