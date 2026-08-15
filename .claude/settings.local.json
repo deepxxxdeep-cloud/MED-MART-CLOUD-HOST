@@ -30,7 +30,8 @@
       "Bash(curl -s -o /dev/null -w \"vite: %{http_code}\\\\n\" http://localhost:5173/)",
       "Bash(curl -s -I http://localhost:5000/)",
       "Bash(pkill -f \"dev-memory.mjs\")",
-      "Bash(curl -s http://localhost:5001/api/health)"
+      "Bash(curl -s http://localhost:5001/api/health)",
+      "Bash(git -c user.name=gyan -c user.email=deepmishra9@hotmail.com commit -q -m 'Add SETUP.md: how to run the API, provision Mongo, and get Google/Firebase keys *)"
     ]
   }
 }
