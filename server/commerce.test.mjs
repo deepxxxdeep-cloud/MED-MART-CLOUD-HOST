@@ -157,8 +157,10 @@ check("a forged payment signature is rejected", r.status === 400 || r.status ===
 
 console.log("\nAdmin\n");
 
-r = await call("/admin/flagged-users", null, { method: "GET" });
-check("admin routes are closed without an allow-listed email", r.status === 403);
+// Admin routes now sit behind a dedicated admin session (see admin.test.mjs),
+// so a buyer's cookie gets 401 rather than reaching the handler at all.
+r = await call("/admin/chat-flags", null, { method: "GET" });
+check("admin routes reject a normal user session", r.status === 401, `status ${r.status}`);
 
 console.log(`\n${pass} passed, ${fail} failed\n`);
 

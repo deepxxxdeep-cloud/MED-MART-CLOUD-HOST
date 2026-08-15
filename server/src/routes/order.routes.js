@@ -5,6 +5,7 @@ import Transaction from "../models/Transaction.js";
 import Product from "../models/Product.js";
 import { requireAuth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
+import PlatformConfig from "../models/PlatformConfig.js";
 import {
   razorpay,
   verifyPaymentSignature,
@@ -14,16 +15,16 @@ import {
 
 const router = Router();
 
-router.get("/config", (_req, res) =>
-  res.json({
-    configured: paymentsConfigured(),
-    // The key id is public by design — it identifies the merchant to the
-    // checkout script. The secret never leaves the server.
-    keyId: process.env.RAZORPAY_KEY_ID || null,
-    commissionRate: DEFAULT_COMMISSION_RATE,
-  })
-);
-
+// The key id is public by design — it identifies the merchant to the checkout
+// script. The secret never leaves the server.
+router.get("/config", async (_req, res, next) => {
+  try {
+    const configured = await paymentsConfigured();
+    const keyId = await PlatformConfig.getValue("razorpay_key_id");
+    const commissionRate = Number(await PlatformConfig.getValue("platform_commission_rate")) || DEFAULT_COMMISSION_RATE;
+    return res.json({ configured, keyId: keyId || null, commissionRate });
+  } catch (err) { next(err); }
+});
 /**
  * Creates a Razorpay order for an intended purchase.
  *
@@ -58,10 +59,12 @@ router.post(
           .json({ message: `Minimum order for this product is ${product.moq} units` });
       }
 
-      const money = Order.priceOrder(product.price, quantity);
+      const rate = Number(await PlatformConfig.getValue("platform_commission_rate")) || DEFAULT_COMMISSION_RATE;
+      const money = Order.priceOrder(product.price, quantity, rate);
       const orderId = newId("MM");
 
-      const rzpOrder = await razorpay().orders.create({
+      const client = await razorpay();
+      const rzpOrder = await client.orders.create({
         // Razorpay works in paise.
         amount: money.totalAmount * 100,
         currency: "INR",
@@ -125,7 +128,7 @@ router.post(
     try {
       const { razorpayOrderId, razorpayPaymentId, signature } = req.body;
 
-      if (!verifyPaymentSignature({ razorpayOrderId, razorpayPaymentId, signature })) {
+      if (!(await verifyPaymentSignature({ razorpayOrderId, razorpayPaymentId, signature }))) {
         await Transaction.updateOne(
           { razorpayOrderId },
           { $set: { status: "failed", notes: "signature mismatch" } }

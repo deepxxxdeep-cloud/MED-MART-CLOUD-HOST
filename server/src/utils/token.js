@@ -30,3 +30,26 @@ export function setAuthCookie(res, token) {
 export function clearAuthCookie(res) {
   res.clearCookie("mm_token", { path: "/" });
 }
+
+/**
+ * Admin sessions use their own cookie and carry `kind: "admin"`, so a
+ * buyer/seller token can never satisfy an admin route. They're also shorter
+ * lived — a privileged session left open is worth more to an attacker.
+ */
+export function signAdminToken(adminId) {
+  return jwt.sign({ sub: adminId, kind: "admin" }, process.env.JWT_SECRET, { expiresIn: "12h" });
+}
+
+export function setAdminCookie(res, token) {
+  res.cookie("mm_admin", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 12 * 60 * 60 * 1000,
+    path: "/",
+  });
+}
+
+export function clearAdminCookie(res) {
+  res.clearCookie("mm_admin", { path: "/" });
+}

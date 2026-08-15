@@ -5,7 +5,9 @@ import authRoutes from "./routes/auth.routes.js";
 import messageRoutes from "./routes/message.routes.js";
 import orderRoutes from "./routes/order.routes.js";
 import revenueRoutes from "./routes/revenue.routes.js";
-import adminRoutes from "./routes/admin.routes.js";
+import adminAuthRoutes from "./routes/adminAuth.routes.js";
+import adminManageRoutes from "./routes/adminManage.routes.js";
+import adminSettingsRoutes from "./routes/adminSettings.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js";
 
 const app = express();
@@ -32,7 +34,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/revenue", revenueRoutes);
-app.use("/api/admin", adminRoutes);
+app.use("/api/admin/auth", adminAuthRoutes);
+app.use("/api/admin/settings", adminSettingsRoutes);
+app.use("/api/admin", adminManageRoutes);
 
 app.use((_req, res) => res.status(404).json({ message: "Route not found" }));
 

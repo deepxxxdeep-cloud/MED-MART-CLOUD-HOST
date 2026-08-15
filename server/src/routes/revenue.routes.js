@@ -1,6 +1,6 @@
 import { Router } from "express";
 import Order from "../models/Order.js";
-import Payout from "../models/Payout.js";
+import PayoutBatch from "../models/PayoutBatch.js";
 import { requireAuth } from "../middleware/auth.js";
 
 const router = Router();
@@ -129,7 +129,7 @@ router.get("/transactions", requireAuth, async (req, res, next) => {
 
 router.get("/payouts", requireAuth, async (req, res, next) => {
   try {
-    const payouts = await Payout.find({ sellerId: req.user._id }).sort({ createdAt: -1 });
+    const payouts = await PayoutBatch.find({ sellerId: req.user._id }).sort({ createdAt: -1 });
     return res.json({ payouts });
   } catch (err) {
     next(err);

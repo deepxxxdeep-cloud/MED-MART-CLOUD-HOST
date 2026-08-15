@@ -22,7 +22,7 @@ router.post(
   express.raw({ type: "application/json" }),
   async (req, res) => {
     const signature = req.get("x-razorpay-signature");
-    if (!verifyWebhookSignature(req.body, signature)) {
+    if (!(await verifyWebhookSignature(req.body, signature))) {
       return res.status(400).json({ message: "Invalid signature" });
     }
 

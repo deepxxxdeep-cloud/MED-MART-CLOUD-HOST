@@ -18,7 +18,16 @@ const BuyerHome = lazy(() => import("./pages/BuyerHome"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const OrderSuccess = lazy(() => import("./pages/OrderSuccess"));
-const FlaggedUsers = lazy(() => import("./pages/admin/FlaggedUsers"));
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
+const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const AdminSellers = lazy(() => import("./pages/admin/AdminSellers"));
+const ChatMonitoring = lazy(() => import("./pages/admin/ChatMonitoring"));
+const AdminOrders = lazy(() => import("./pages/admin/AdminOrders"));
+const AdminRevenue = lazy(() => import("./pages/admin/AdminRevenue"));
+const AdminModeration = lazy(() => import("./pages/admin/AdminModeration"));
+const PlatformSettings = lazy(() => import("./pages/admin/PlatformSettings"));
+const AdminTeam = lazy(() => import("./pages/admin/AdminTeam"));
 
 const SellerLayout = lazy(() => import("./pages/seller/SellerLayout"));
 const Overview = lazy(() => import("./pages/seller/Overview"));
@@ -57,7 +66,19 @@ function AnimatedRoutes() {
         <Route path="/shop" element={<BuyerHome />} />
         <Route path="/checkout/:id" element={<Checkout />} />
         <Route path="/order-success/:orderId" element={<OrderSuccess />} />
-        <Route path="/admin/flagged-users" element={<FlaggedUsers />} />
+
+        {/* Admin console — nested so the shell persists across sections */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminOverview />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="sellers" element={<AdminSellers />} />
+          <Route path="chat-monitoring" element={<ChatMonitoring />} />
+          <Route path="orders" element={<AdminOrders />} />
+          <Route path="revenue" element={<AdminRevenue />} />
+          <Route path="moderation" element={<AdminModeration />} />
+          <Route path="settings" element={<PlatformSettings />} />
+          <Route path="team" element={<AdminTeam />} />
+        </Route>
 
         {/* Seller dashboard — nested so the shell persists across sections */}
         <Route path="/seller" element={<SellerLayout />}>
