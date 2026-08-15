@@ -1,38 +1,51 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMotionValueEvent, useScroll } from "framer-motion";
 
 const FRAME_COUNT = 136;
+const CONCURRENCY = 8;
 
-// Phones get the 900px set, everything else the 1600px set. Decided once —
-// swapping mid-session would throw away a warm cache for no visible gain.
-const IS_SMALL =
-  typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches;
-const DIR = IS_SMALL ? "/seq/sd" : "/seq/hd";
+// Pick a set that matches the display rather than guessing phone/desktop.
+// A tablet asking for the 1600px set was downloading nearly 4x what it could
+// show, which is most of why it felt worse than the phone.
+function pickTier() {
+  if (typeof window === "undefined") return "md";
+  // Weight DPR at 1.5 rather than its full value. Counting every device pixel
+  // pushed a 2x tablet onto the 1600px set — 4.1MB to fill a screen that
+  // cannot resolve the difference behind a darkened overlay, and a longer
+  // wait before scrubbing can start.
+  const w = window.innerWidth * Math.min(window.devicePixelRatio || 1, 1.5);
+  if (w <= 900) return "sm";
+  if (w <= 1600) return "md";
+  return "lg";
+}
 
+const DIR = `/seq/${pickTier()}`;
 const frameUrl = (i) => `${DIR}/f-${String(i + 1).padStart(3, "0")}.webp`;
 
 /**
- * Scroll-scrubbed background, drawn as an image sequence on a canvas.
+ * Scroll-scrubbed background rendered as a decoded image sequence.
  *
- * This replaces the <video> approach. Scrubbing a video means asking the
- * decoder to seek on every scroll event, which is where the mobile stutter
- * came from — a seek is only cheap if the target frame is buffered and close
- * to a keyframe. Swapping a decoded still costs nothing, so the animation
- * tracks the finger exactly. It is the technique Apple uses for the same
- * effect.
+ * Two things make this smooth, and both were missing before:
  *
- * The canvas is sized in device pixels, not CSS pixels: on a 3x phone a
- * canvas backed at CSS resolution is upscaled by the compositor and looks
- * soft, which is the "blurry" part. DPR is capped at 2 because the memory
- * cost of a third sample is real and the difference is not visible.
+ * 1. Nothing is scrubbed until every frame is decoded. Previously the draw
+ *    fell back to "nearest frame that happens to have arrived", so a first
+ *    pass down the page showed a partial animation and a second pass — now
+ *    served from cache — showed more of it. Holding the first frame until the
+ *    set is ready is far less jarring than an animation that fills itself in.
+ *
+ * 2. Frames are decoded up front with img.decode(). Handing drawImage an
+ *    undecoded image makes it decode synchronously on the main thread, which
+ *    is a dropped frame every single time a new frame is reached — exactly
+ *    the stutter that survived every earlier fix.
  */
 export default function SiteBackgroundSequence() {
   const canvasRef = useRef(null);
   const frames = useRef([]);
-  const loaded = useRef(new Array(FRAME_COUNT).fill(false));
+  const ready = useRef(false);
   const current = useRef(0);
   const rafId = useRef(null);
   const drawRef = useRef(() => {});
+  const [visible, setVisible] = useState(false);
 
   const { scrollYProgress } = useScroll();
 
@@ -40,61 +53,77 @@ export default function SiteBackgroundSequence() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d", { alpha: false });
+    let cancelled = false;
 
-    const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.round(canvas.clientWidth * dpr);
-      canvas.height = Math.round(canvas.clientHeight * dpr);
-      draw(current.current);
-    };
-
-    // Cover-fit, mirroring object-fit: cover.
     const draw = (index) => {
-      // If this frame hasn't arrived yet, fall back to the nearest one that
-      // has, so early scrolling still moves rather than showing nothing.
-      let i = index;
-      if (!loaded.current[i]) {
-        let found = -1;
-        for (let d = 1; d < FRAME_COUNT; d++) {
-          if (loaded.current[i - d]) { found = i - d; break; }
-          if (loaded.current[i + d]) { found = i + d; break; }
-        }
-        if (found < 0) return;
-        i = found;
-      }
-
-      const img = frames.current[i];
+      const img = frames.current[index];
       if (!img) return;
-
       const cw = canvas.width;
       const ch = canvas.height;
+      // cover-fit, same geometry as object-fit: cover
       const scale = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
       const w = img.naturalWidth * scale;
       const h = img.naturalHeight * scale;
       ctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h);
     };
-
     drawRef.current = draw;
 
-    // Load frame 0 first so something is on screen immediately, then the rest
-    // in order. Browsers cap parallel connections anyway, so a plain loop is
-    // fine and keeps arrival roughly sequential.
-    for (let i = 0; i < FRAME_COUNT; i++) {
-      const img = new Image();
-      img.decoding = "async";
-      img.src = frameUrl(i);
-      img.onload = () => {
-        loaded.current[i] = true;
-        // Only repaint if this is the frame we actually want right now.
-        if (i === current.current) draw(i);
-        else if (i === 0 && current.current === 0) draw(0);
-      };
-      frames.current[i] = img;
-    }
-
+    const resize = () => {
+      // Size the backing store in device pixels — a CSS-pixel canvas gets
+      // upscaled by the compositor and looks soft on any HiDPI screen.
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = Math.round(canvas.clientWidth * dpr);
+      const h = Math.round(canvas.clientHeight * dpr);
+      if (w === canvas.width && h === canvas.height) return;
+      canvas.width = w;
+      canvas.height = h;
+      if (ready.current) draw(current.current);
+    };
     resize();
+
+    const load = (i) =>
+      new Promise((resolve) => {
+        const img = new Image();
+        img.decoding = "async";
+        img.src = frameUrl(i);
+        const finish = () => {
+          frames.current[i] = img;
+          resolve();
+        };
+        img.onload = () => {
+          // decode() resolves once the bitmap is ready, off the main thread.
+          if (img.decode) img.decode().then(finish, finish);
+          else finish();
+        };
+        img.onerror = () => resolve();
+      });
+
+    (async () => {
+      // First frame alone, so there is something correct on screen at once.
+      await load(0);
+      if (cancelled) return;
+      draw(0);
+      setVisible(true);
+
+      // Then the rest, a few at a time so we don't open 136 sockets.
+      let next = 1;
+      const workers = Array.from({ length: CONCURRENCY }, async () => {
+        while (!cancelled) {
+          const i = next++;
+          if (i >= FRAME_COUNT) return;
+          await load(i);
+        }
+      });
+      await Promise.all(workers);
+      if (cancelled) return;
+
+      ready.current = true;
+      draw(current.current); // catch up to wherever the page is now
+    })();
+
     window.addEventListener("resize", resize);
     return () => {
+      cancelled = true;
       window.removeEventListener("resize", resize);
       cancelAnimationFrame(rafId.current);
     };
@@ -108,6 +137,10 @@ export default function SiteBackgroundSequence() {
     if (index === current.current) return;
     current.current = index;
 
+    // Until the set is decoded, track the position but keep showing frame 0
+    // rather than jumping between whichever frames happen to have landed.
+    if (!ready.current) return;
+
     if (rafId.current) return;
     rafId.current = requestAnimationFrame(() => {
       rafId.current = null;
@@ -117,7 +150,10 @@ export default function SiteBackgroundSequence() {
 
   return (
     <div className="fixed inset-0 -z-50 h-screen w-screen overflow-hidden bg-navy-deep">
-      <canvas ref={canvasRef} className="h-full w-full" />
+      <canvas
+        ref={canvasRef}
+        className={`h-full w-full transition-opacity duration-500 ${visible ? "opacity-100" : "opacity-0"}`}
+      />
       <div className="absolute inset-0 bg-navy-deep/40" />
     </div>
   );
