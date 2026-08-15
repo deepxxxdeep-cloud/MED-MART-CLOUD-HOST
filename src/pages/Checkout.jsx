@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Lock, ShieldCheck, Truck, AlertCircle } from "lucide-react";
 import { PRODUCTS, formatINR } from "../data/buyerData";
 import Logo from "../components/Logo";
-import { api } from "../lib/api";
+import { api, DEMO_MODE } from "../lib/api";
 
 const COMMISSION_RATE = 0.06;
 const inputCls =
@@ -47,7 +47,29 @@ export default function Checkout() {
     }
     setBusy(true);
     try {
-      const { razorpay, order } = await api("/orders/create", {
+      const { order } = await api("/orders/create", {
+        body: {
+          productId: product.id,
+          quantity,
+          deliveryAddress: address,
+          // Demo backend has no product table to price against, so it needs
+          // these; the real server ignores them and reads its own record.
+          unitPrice: product.price,
+          productName: product.name,
+        },
+      });
+
+      if (DEMO_MODE) {
+        // Stand in for the Razorpay modal so the flow can be walked end to end
+        // without live keys.
+        await api("/orders/verify-payment", {
+          body: { razorpayOrderId: "demo", razorpayPaymentId: "demo", signature: "demo" },
+        });
+        navigate(`/order-success/${order.orderId}`);
+        return;
+      }
+
+      const { razorpay } = await api("/orders/create", {
         body: { productId: product.id, quantity, deliveryAddress: address },
       });
       const cfg = await api("/orders/config", { method: "GET" });

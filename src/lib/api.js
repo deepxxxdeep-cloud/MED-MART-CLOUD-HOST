@@ -1,3 +1,5 @@
+import { DEMO_MODE, demoRequest } from "./demoBackend";
+
 // Relative by default — Vite proxies /api to the server in dev (see
 // vite.config.js), so requests stay same-origin and the cookie is first-party.
 const BASE = import.meta.env.VITE_API_URL || "/api";
@@ -6,8 +8,12 @@ const BASE = import.meta.env.VITE_API_URL || "/api";
  * credentials:"include" is required so the httpOnly auth cookie is sent.
  * Throws an Error carrying { status, errors } so forms can map failures
  * back onto individual fields.
+ *
+ * In demo mode the request never leaves the browser — see demoBackend.js.
  */
 export async function api(path, { method = "POST", body } = {}) {
+  if (DEMO_MODE) return demoRequest(path, { method, body });
+
   let res;
   try {
     res = await fetch(BASE + path, {
@@ -32,3 +38,5 @@ export async function api(path, { method = "POST", body } = {}) {
   }
   return data;
 }
+
+export { DEMO_MODE };

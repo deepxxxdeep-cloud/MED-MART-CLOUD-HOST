@@ -8,6 +8,7 @@ import PasswordField from "../components/auth/PasswordField";
 import { Checkbox, Tabs, SubmitButton } from "../components/auth/Controls";
 import GoogleMark from "../components/auth/GoogleMark";
 import { useAuth } from "../context/AuthContext";
+import { DEMO_MODE } from "../lib/api";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -40,7 +41,7 @@ export default function Login() {
     setLoading(true);
     try {
       await login(form);
-      navigate("/", { replace: true });
+      navigate("/shop", { replace: true });
     } catch (err) {
       setErrors(err.errors || {});
       if (!err.errors || Object.keys(err.errors).length === 0) setFormError(err.message);
@@ -62,6 +63,14 @@ export default function Login() {
           Good to see you again.
         </p>
       </div>
+
+      {DEMO_MODE && (
+        <p className="mb-4 rounded-lg border border-orange/30 bg-orange-light/60 px-3.5 py-2.5 text-[12px] leading-relaxed text-navy/70">
+          <span className="font-semibold text-orange">Demo:</span> any email and password signs you
+          in. Try <span className="font-mono">buyer@demo.in</span> /{" "}
+          <span className="font-mono">demo1234</span>.
+        </p>
+      )}
 
       <Tabs tabs={TABS} active={tab} onChange={setTab} idPrefix="login" />
 

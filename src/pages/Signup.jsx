@@ -9,6 +9,7 @@ import PasswordField from "../components/auth/PasswordField";
 import { Checkbox, Select, Tabs, SubmitButton } from "../components/auth/Controls";
 import GoogleMark from "../components/auth/GoogleMark";
 import { useAuth } from "../context/AuthContext";
+import { DEMO_MODE } from "../lib/api";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -61,7 +62,7 @@ export default function Signup() {
     setLoading(true);
     try {
       await signup({ ...form, role, acceptedTerms: String(terms) });
-      navigate("/", { replace: true });
+      navigate("/shop", { replace: true });
     } catch (err) {
       setErrors(err.errors || {});
       // Only surface a banner when no field owns the failure.
@@ -84,6 +85,13 @@ export default function Signup() {
           Takes less than a minute to get started.
         </p>
       </div>
+
+      {DEMO_MODE && (
+        <p className="mb-4 rounded-lg border border-orange/30 bg-orange-light/60 px-3.5 py-2.5 text-[12px] leading-relaxed text-navy/70">
+          <span className="font-semibold text-orange">Demo:</span> your account is created in this
+          browser only. Password still needs 8+ characters with upper, lower and a number.
+        </p>
+      )}
 
       <RoleToggle value={role} onChange={setRole} />
 

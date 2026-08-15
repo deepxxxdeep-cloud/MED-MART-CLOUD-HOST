@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { AuthProvider } from "./context/AuthContext";
 import { ShopProvider } from "./context/ShopContext";
 import RouteFallback from "./components/RouteFallback";
+import DemoBadge from "./components/DemoBadge";
 
 // Landing is the entry point, so it ships in the initial bundle — lazily
 // loading it would only add a round trip before first paint.
@@ -139,6 +140,7 @@ export default function App() {
           <Suspense fallback={<RouteFallback />}>
             <AnimatedRoutes />
           </Suspense>
+          <DemoBadge />
         </ShopProvider>
       </AuthProvider>
     </BrowserRouter>
