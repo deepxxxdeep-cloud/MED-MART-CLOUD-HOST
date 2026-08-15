@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { FacebookIcon, TwitterIcon, LinkedinIcon, InstagramIcon } from "./SocialIcons";
 import Logo from "./Logo";
 
@@ -30,7 +31,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {/* Company info */}
           <div>
-            <Logo dark className="group" />
+            <Link to="/" className="group">
+              <Logo dark />
+            </Link>
             <p className="mt-4 max-w-xs text-sm font-light leading-relaxed text-gray-400">
               India's trusted B2B marketplace connecting healthcare buyers with verified suppliers
               of medical equipment, tools & technology.
@@ -66,6 +69,24 @@ export default function Footer() {
               Privacy Policy
             </a>
           </div>
+        </div>
+      </div>
+
+      {/* Builder credit */}
+      <div className="border-t border-white/10">
+        <div className="mx-auto max-w-7xl px-4 py-5 text-center sm:px-6 lg:px-8">
+          <a
+            href="https://aiwebify.site"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-center gap-1.5 text-xs text-gray-400 transition-colors duration-300 hover:text-orange"
+          >
+            Made by
+            <span className="relative font-semibold text-white transition-colors duration-300 group-hover:text-orange">
+              aiwebify.site
+              <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-orange transition-all duration-300 group-hover:w-full" />
+            </span>
+          </a>
         </div>
       </div>
     </footer>
