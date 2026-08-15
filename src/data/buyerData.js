@@ -258,6 +258,16 @@ export const PROMO_TILES = [
   { id: "dental", title: "Dental Range", note: "Chairs, scalers & more", off: "New arrivals", to: "/c/dental", photo: PHOTOS.dental },
 ];
 
+/** Featured verified suppliers. */
+export const SUPPLIERS = [
+  { id: "s1", name: "Medline Imaging Pvt. Ltd.", city: "Mumbai, Maharashtra", years: 14, rating: 4.7, reviews: 312, categories: "Imaging & Diagnostics" },
+  { id: "s2", name: "Precision Surgico", city: "Delhi NCR", years: 22, rating: 4.8, reviews: 508, categories: "Surgical Instruments" },
+  { id: "s3", name: "SafeGuard Medicals", city: "Bengaluru, Karnataka", years: 9, rating: 4.6, reviews: 1204, categories: "PPE & Disposables" },
+  { id: "s4", name: "Aarogya Furnitech", city: "Ahmedabad, Gujarat", years: 17, rating: 4.4, reviews: 186, categories: "Hospital Furniture" },
+  { id: "s5", name: "LabTech Instruments", city: "Pune, Maharashtra", years: 11, rating: 4.5, reviews: 241, categories: "Laboratory Equipment" },
+  { id: "s6", name: "DentPro Systems", city: "Jaipur, Rajasthan", years: 8, rating: 4.3, reviews: 97, categories: "Dental Equipment" },
+];
+
 /** Popular search terms — the autocomplete matches against these. */
 export const SEARCH_SUGGESTIONS = [
   "Surgical scissors stainless steel",
