@@ -1,10 +1,13 @@
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { AuthProvider } from "./context/AuthContext";
+import { ShopProvider } from "./context/ShopContext";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
+import BuyerHome from "./pages/BuyerHome";
+import ComingSoon from "./pages/ComingSoon";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -28,6 +31,7 @@ function AnimatedRoutes() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Landing />} />
+        <Route path="/shop" element={<BuyerHome />} />
         <Route
           path="/login"
           element={
@@ -52,6 +56,14 @@ function AnimatedRoutes() {
             </Page>
           }
         />
+        <Route
+          path="*"
+          element={
+            <Page>
+              <ComingSoon />
+            </Page>
+          }
+        />
       </Routes>
     </AnimatePresence>
   );
@@ -61,7 +73,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AnimatedRoutes />
+        <ShopProvider>
+          <AnimatedRoutes />
+        </ShopProvider>
       </AuthProvider>
     </BrowserRouter>
   );
