@@ -1,22 +1,31 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { AuthProvider } from "./context/AuthContext";
 import { ShopProvider } from "./context/ShopContext";
+import RouteFallback from "./components/RouteFallback";
+
+// Landing is the entry point, so it ships in the initial bundle — lazily
+// loading it would only add a round trip before first paint.
 import Landing from "./pages/Landing";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import ForgotPassword from "./pages/ForgotPassword";
-import BuyerHome from "./pages/BuyerHome";
-import ComingSoon from "./pages/ComingSoon";
-import SellerLayout from "./pages/seller/SellerLayout";
-import Overview from "./pages/seller/Overview";
-import SellerProducts from "./pages/seller/Products";
-import AddProduct from "./pages/seller/AddProduct";
-import SellerInquiries from "./pages/seller/Inquiries";
-import BuyRequirements from "./pages/seller/BuyRequirements";
-import SellerAnalytics from "./pages/seller/Analytics";
-import SellerProfile from "./pages/seller/Profile";
-import SellerSettings from "./pages/seller/Settings";
+
+// Everything else is split. The seller dashboard matters most: it pulls in
+// Recharts, which no visitor to the marketing site should have to download.
+const Login = lazy(() => import("./pages/Login"));
+const Signup = lazy(() => import("./pages/Signup"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const BuyerHome = lazy(() => import("./pages/BuyerHome"));
+const ComingSoon = lazy(() => import("./pages/ComingSoon"));
+
+const SellerLayout = lazy(() => import("./pages/seller/SellerLayout"));
+const Overview = lazy(() => import("./pages/seller/Overview"));
+const SellerProducts = lazy(() => import("./pages/seller/Products"));
+const AddProduct = lazy(() => import("./pages/seller/AddProduct"));
+const SellerInquiries = lazy(() => import("./pages/seller/Inquiries"));
+const BuyRequirements = lazy(() => import("./pages/seller/BuyRequirements"));
+const SellerAnalytics = lazy(() => import("./pages/seller/Analytics"));
+const SellerProfile = lazy(() => import("./pages/seller/Profile"));
+const SellerSettings = lazy(() => import("./pages/seller/Settings"));
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -53,6 +62,7 @@ function AnimatedRoutes() {
           <Route path="profile" element={<SellerProfile />} />
           <Route path="settings" element={<SellerSettings />} />
         </Route>
+
         <Route
           path="/login"
           element={
@@ -95,7 +105,9 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <ShopProvider>
-          <AnimatedRoutes />
+          <Suspense fallback={<RouteFallback />}>
+            <AnimatedRoutes />
+          </Suspense>
         </ShopProvider>
       </AuthProvider>
     </BrowserRouter>
