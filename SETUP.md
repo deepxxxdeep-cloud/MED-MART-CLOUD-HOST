@@ -128,7 +128,69 @@ Rate limiting (max 3 OTP requests per number per 10 min) will sit on our
 
 ---
 
-## 5. Before production
+## 5. Deploying to Vercel
+
+The repo is already configured for it (`vercel.json` + `api/index.js`).
+
+**How it's wired:** Vercel can't run a long-lived Express server, so the same
+Express app is exported as a **serverless function** at `api/index.js`. Vercel
+turns every file under `/api` into a function automatically, and `vercel.json`
+routes `/api/*` there while sending every other path to `index.html` so
+client-side routes like `/login` don't 404. Frontend and API end up on one
+domain, so the auth cookie stays first-party exactly like in dev.
+
+`server/src/config/db.js` caches the Mongo connection on `globalThis` — without
+that, every request would open a new pool and blow through Atlas's connection
+limit within minutes.
+
+### Steps
+
+1. **You must finish step 2 first (MongoDB Atlas).** The `dev:memory` database
+   only exists inside a running process — it cannot work on serverless.
+   In Atlas → Network Access, allow `0.0.0.0/0`, because Vercel's functions
+   don't have fixed IPs.
+2. https://vercel.com → **Add New → Project** → import
+   `deepxxxdeep-cloud/MED-MART-CLOUD-HOST`.
+3. Framework preset will detect **Vite**. Leave build settings as they are —
+   `vercel.json` already specifies them.
+4. **Environment Variables** (Settings → Environment Variables), for
+   *Production* and *Preview*:
+   ```
+   MONGODB_URI       mongodb+srv://...        (from Atlas)
+   JWT_SECRET        <run: openssl rand -hex 48>   ← a NEW one, not the dev value
+   JWT_EXPIRES_IN    7d
+   CLIENT_URL        https://<your-project>.vercel.app
+   ```
+   Don't set `NODE_ENV` — Vercel sets it to `production` itself, which is what
+   flips the auth cookie to `secure`.
+5. **Deploy.** Then check `https://<your-project>.vercel.app/api/health` — it
+   should return `{"ok":true}`. If it 503s, the `MONGODB_URI` is wrong or Atlas
+   is still blocking the IP.
+6. Once you add Google/Firebase later, add those keys here too, and add the
+   Vercel URL to the Google **authorised origins** and Firebase **authorised
+   domains** lists.
+
+### Worth knowing
+
+- **The 25 MB video is the main risk.** Vercel will serve it, but first paint on
+  a phone will be slow and it eats bandwidth on the free tier. Compress it
+  before you share the link widely.
+- Free-tier functions cold-start; the first API call after idle can take a
+  second or two. Normal, not a bug.
+- `server/` still runs standalone (`npm run dev`) for local work — the
+  serverless wrapper doesn't replace it, it just re-uses the same app.
+
+### If you'd rather not use serverless
+
+Host the `server/` folder as a normal Node service on **Render** or **Railway**
+(free tiers, no code changes — it's a plain Express app), keep the frontend on
+Vercel, and set `VITE_API_URL=https://your-api-host.com/api` in Vercel. In that
+setup the API is on a different domain, so `server/src/utils/token.js` needs
+`sameSite: "none"` for the cookie to be accepted cross-site.
+
+---
+
+## 6. Before production
 
 - [ ] `NODE_ENV=production` (makes the auth cookie `secure`, so HTTPS required)
 - [ ] Regenerate `JWT_SECRET` (`openssl rand -hex 48`) — don't reuse the dev one
