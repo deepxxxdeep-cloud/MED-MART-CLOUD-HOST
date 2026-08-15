@@ -2,6 +2,8 @@ import { useState } from "react";
 import TopUtilityBar from "../components/buyer/TopUtilityBar";
 import BuyerHeader from "../components/buyer/BuyerHeader";
 import CategoryNav from "../components/buyer/CategoryNav";
+import HeroCarousel from "../components/buyer/HeroCarousel";
+import CategoryIconsRow from "../components/buyer/CategoryIconsRow";
 
 export default function BuyerHome() {
   const [mobileNav, setMobileNav] = useState(false);
@@ -16,9 +18,11 @@ export default function BuyerHome() {
         <CategoryNav mobileOpen={mobileNav} />
       </header>
 
-      <main className="mx-auto max-w-[1600px] px-4 py-10 sm:px-6 lg:px-8">
-        <p className="text-sm text-navy/40">
-          Sections build out from here — hero carousel next.
+      <main className="pb-16">
+        <HeroCarousel />
+        <CategoryIconsRow />
+        <p className="mx-auto max-w-[1600px] px-4 pt-12 text-sm text-navy/40 sm:px-6 lg:px-8">
+          Product sections build out from here.
         </p>
       </main>
     </div>

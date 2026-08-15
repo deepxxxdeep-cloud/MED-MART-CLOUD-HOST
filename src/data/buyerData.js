@@ -160,6 +160,104 @@ export const CATEGORIES = [
 /** Flat list for the search-bar dropdown. */
 export const CATEGORY_NAMES = ["All Categories", ...CATEGORIES.map((c) => c.name)];
 
+const P = (id, name, cat, photo, price, mrp, moq, rating, reviews, supplier, city, tags = []) => ({
+  id,
+  name,
+  category: cat,
+  photo,
+  price,
+  mrp,
+  // percentage off, derived so the badge can never disagree with the prices
+  discount: Math.round(((mrp - price) / mrp) * 100),
+  moq,
+  rating,
+  reviews,
+  supplier,
+  city,
+  tags,
+});
+
+/** Dummy catalogue — replaced by the API once product endpoints exist. */
+export const PRODUCTS = [
+  P(1, "Digital Portable X-Ray Machine 5kW", "diagnostic-equipment", PHOTOS.diagnostic, 289000, 365000, 1, 4.6, 128, "Medline Imaging Pvt. Ltd.", "Mumbai, MH", ["deal", "trending"]),
+  P(2, "Multi-Parameter Patient Monitor 5-Para", "diagnostic-equipment", PHOTOS.diagnostic, 38500, 52000, 5, 4.4, 96, "CarePoint Systems", "Chennai, TN", ["deal", "recommended"]),
+  P(3, "Surgical Instrument Kit — 20 Pieces", "surgical-instruments", PHOTOS.surgical, 9200, 14500, 10, 4.7, 214, "Precision Surgico", "Delhi NCR", ["deal", "trending"]),
+  P(4, "ICU Electric Hospital Bed 5-Function", "hospital-furniture", PHOTOS.furniture, 52000, 74000, 2, 4.5, 73, "Aarogya Furnitech", "Ahmedabad, GJ", ["deal"]),
+  P(5, "Laboratory Centrifuge 8000 RPM", "lab-equipment", PHOTOS.lab, 21500, 28000, 3, 4.3, 58, "LabTech Instruments", "Pune, MH", ["recommended"]),
+  P(6, "N95 Respirator Masks — Box of 50", "ppe-safety", PHOTOS.ppe, 1350, 2400, 100, 4.8, 1042, "SafeGuard Medicals", "Bengaluru, KA", ["deal", "trending"]),
+  P(7, "Portable Ultrasound Scanner Colour Doppler", "diagnostic-equipment", PHOTOS.diagnostic, 498000, 640000, 1, 4.6, 41, "Medline Imaging Pvt. Ltd.", "Hyderabad, TG", ["new"]),
+  P(8, "Orthopedic Traction Unit — Adjustable", "orthopedic", PHOTOS.ortho, 27500, 36000, 2, 4.2, 37, "OrthoLine India", "Kolkata, WB", ["recommended"]),
+  P(9, "Autoclave Vertical 50L Fully Automatic", "lab-equipment", PHOTOS.lab, 46000, 61000, 1, 4.5, 89, "SteriMax Equipments", "Pune, MH", ["deal", "recommended"]),
+  P(10, "Nitrile Examination Gloves — 1000 pcs", "disposables", PHOTOS.ppe, 2150, 3200, 50, 4.6, 876, "SafeGuard Medicals", "Bengaluru, KA", ["deal"]),
+  P(11, "Dental Chair with LED Operating Light", "dental", PHOTOS.dental, 168000, 215000, 1, 4.4, 52, "DentPro Systems", "Jaipur, RJ", ["new", "recommended"]),
+  P(12, "ECG Machine 12-Channel with Trolley", "diagnostic-equipment", PHOTOS.diagnostic, 74500, 95000, 2, 4.5, 63, "CarePoint Systems", "Chennai, TN", ["recommended"]),
+  P(13, "Stainless Steel Surgical Scissors Set", "surgical-instruments", PHOTOS.surgical, 3400, 5200, 25, 4.7, 305, "Precision Surgico", "Delhi NCR", ["trending"]),
+  P(14, "Fowler Hospital Bed Manual 2-Crank", "hospital-furniture", PHOTOS.furniture, 24500, 33000, 3, 4.1, 44, "Aarogya Furnitech", "Ahmedabad, GJ", ["recommended"]),
+  P(15, "Titanium Bone Plate & Screw System", "orthopedic", PHOTOS.ortho, 15800, 21000, 10, 4.6, 71, "OrthoLine India", "Kolkata, WB", ["new"]),
+  P(16, "Binocular Compound Microscope 1000x", "lab-equipment", PHOTOS.lab, 32500, 44000, 2, 4.4, 112, "LabTech Instruments", "Pune, MH", ["deal"]),
+  P(17, "Disposable Syringes 5ml — Box of 100", "disposables", PHOTOS.ppe, 620, 950, 200, 4.5, 1288, "MediDispose Corp", "Indore, MP", ["deal", "trending"]),
+  P(18, "Surgical Gowns SMS Sterile — Pack of 25", "ppe-safety", PHOTOS.ppe, 2850, 4100, 40, 4.3, 197, "SafeGuard Medicals", "Bengaluru, KA", ["recommended"]),
+  P(19, "Hospital Management Software — Annual", "medical-tech", PHOTOS.tech, 84000, 110000, 1, 4.2, 28, "HealthStack Labs", "Noida, UP", ["new"]),
+  P(20, "TENS Electrotherapy Unit Dual Channel", "physiotherapy", PHOTOS.ortho, 8900, 12500, 5, 4.4, 84, "PhysioCare Devices", "Coimbatore, TN", ["new", "recommended"]),
+  P(21, "Infusion Pump Volumetric with Alarm", "diagnostic-equipment", PHOTOS.diagnostic, 41500, 55000, 2, 4.5, 66, "CarePoint Systems", "Chennai, TN", ["recommended"]),
+  P(22, "Foldable Steel Wheelchair with Brakes", "hospital-furniture", PHOTOS.furniture, 7400, 10500, 5, 4.3, 231, "Aarogya Furnitech", "Ahmedabad, GJ", ["deal", "trending"]),
+  P(23, "Absorbable Surgical Sutures — Box of 12", "disposables", PHOTOS.surgical, 4200, 5900, 20, 4.6, 158, "MediDispose Corp", "Indore, MP", ["recommended"]),
+  P(24, "Ultrasonic Dental Scaler Piezo", "dental", PHOTOS.dental, 18700, 25000, 2, 4.3, 47, "DentPro Systems", "Jaipur, RJ", ["new"]),
+  P(25, "Fingertip Pulse Oximeter OLED — Pack of 10", "diagnostic-equipment", PHOTOS.diagnostic, 5600, 8900, 20, 4.7, 512, "CarePoint Systems", "Chennai, TN", ["deal", "trending"]),
+];
+
+export const byTag = (tag) => PRODUCTS.filter((p) => p.tags.includes(tag));
+export const byCategory = (slug) => PRODUCTS.filter((p) => p.category === slug);
+
+export const formatINR = (n) => `₹${n.toLocaleString("en-IN")}`;
+
+/** Hero carousel slides. */
+export const HERO_SLIDES = [
+  {
+    id: "bulk",
+    eyebrow: "Limited period",
+    title: "Bulk Orders, Better Margins",
+    subtitle: "Up to 30% off on high-volume orders across surgical and disposable ranges.",
+    cta: "Shop bulk deals",
+    to: "/c/disposables",
+    photo: PHOTOS.surgical,
+  },
+  {
+    id: "diagnostic",
+    eyebrow: "Just landed",
+    title: "New Diagnostic Equipment Range",
+    subtitle: "Imaging, monitoring and point-of-care devices from verified Indian suppliers.",
+    cta: "Explore diagnostics",
+    to: "/c/diagnostic-equipment",
+    photo: PHOTOS.diagnostic,
+  },
+  {
+    id: "ppe",
+    eyebrow: "Always in stock",
+    title: "PPE & Safety, Ready to Ship",
+    subtitle: "N95 respirators, gowns and gloves with pan-India delivery in 3–5 days.",
+    cta: "Browse PPE",
+    to: "/c/ppe-safety",
+    photo: PHOTOS.ppe,
+  },
+  {
+    id: "rfq",
+    eyebrow: "Can't find it?",
+    title: "Post a Requirement, Get Quotes",
+    subtitle: "Tell us what you need and verified suppliers respond within 24 hours.",
+    cta: "Post requirement",
+    to: "/post-requirement",
+    photo: PHOTOS.lab,
+  },
+];
+
+/** Small promo tiles beside the carousel. */
+export const PROMO_TILES = [
+  { id: "lab", title: "Lab Equipment", note: "Autoclaves & centrifuges", off: "25% OFF", to: "/c/lab-equipment", photo: PHOTOS.lab },
+  { id: "furniture", title: "Hospital Furniture", note: "ICU beds & trolleys", off: "18% OFF", to: "/c/hospital-furniture", photo: PHOTOS.furniture },
+  { id: "dental", title: "Dental Range", note: "Chairs, scalers & more", off: "New arrivals", to: "/c/dental", photo: PHOTOS.dental },
+];
+
 /** Popular search terms — the autocomplete matches against these. */
 export const SEARCH_SUGGESTIONS = [
   "Surgical scissors stainless steel",
