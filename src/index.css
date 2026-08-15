@@ -15,7 +15,11 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* Deliberately not `smooth`: the background video is scrubbed from scroll
+     position, and smooth-scrolling keeps animating after the gesture ends,
+     which makes the footage drift on after you stop. Anchor jumps opt in
+     individually instead. */
+  scroll-behavior: auto;
 }
 
 body {
