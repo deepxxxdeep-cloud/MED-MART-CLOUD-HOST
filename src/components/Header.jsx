@@ -12,7 +12,9 @@ export default function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-white/15 bg-navy-deep/25">
       {/* Main header row */}
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6 lg:px-8">
-        <Logo dark className="group" />
+        <Link to="/" className="group">
+          <Logo dark />
+        </Link>
 
         {/* Search bar - desktop */}
         <div className="hidden flex-1 md:flex">

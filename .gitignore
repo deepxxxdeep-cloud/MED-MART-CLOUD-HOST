@@ -25,3 +25,6 @@ dist-ssr
 
 # Claude Code machine-local settings
 .claude/settings.local.json
+
+# Source master for the background video (24MB) — encoded variants are committed instead
+public/media/plane-window-source.mp4

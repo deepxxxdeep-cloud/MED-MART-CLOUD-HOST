@@ -1,6 +1,8 @@
+// Renders the mark only — never its own <a>. Callers wrap it in a <Link>
+// where it should navigate, so we don't end up with anchors inside anchors.
 export default function Logo({ className = "", textClassName = "text-xl", dark = false }) {
   return (
-    <a href="/" className={`flex items-center gap-2.5 shrink-0 ${className}`}>
+    <span className={`flex items-center gap-2.5 shrink-0 ${className}`}>
       <svg
         viewBox="0 0 64 64"
         className="h-9 w-9 drop-shadow-[0_4px_8px_rgba(242,101,34,0.35)] transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105"
@@ -34,6 +36,6 @@ export default function Logo({ className = "", textClassName = "text-xl", dark =
         <span className={dark ? "text-white" : "text-navy"}>MED</span>
         <span className="text-orange">-MART</span>
       </span>
-    </a>
+    </span>
   );
 }

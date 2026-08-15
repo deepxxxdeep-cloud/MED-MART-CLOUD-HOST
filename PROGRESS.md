@@ -76,6 +76,40 @@ inline SVGs in `SocialIcons.jsx`.
 All dummy — `src/data/siteData.js` (categories, featuredProducts, testimonials,
 categoryMenu, trustStats). Client will wire a real DB later.
 
+## Regenerating the background video
+
+`public/media/` holds delivery encodes only; the 24MB master is not in git
+(it's in the history at commit `1b236eb` if you ever need it back:
+`git show 1b236eb:public/media/plane-window.mp4 > master.mp4`).
+
+`npx ffmpeg-static` provides the binary. From the master:
+
+```bash
+FF=$(node -e "console.log(require('ffmpeg-static'))")
+
+# desktop
+"$FF" -y -t 6.8 -i master.mp4 -an -vf "scale=1280:-2" -c:v libx264 \
+  -profile:v main -pix_fmt yuv420p -crf 28 -preset slow \
+  -g 12 -keyint_min 12 -sc_threshold 0 -movflags +faststart \
+  public/media/plane-window-720.mp4
+
+# phones
+"$FF" -y -t 6.8 -i master.mp4 -an -vf "scale=720:-2" -c:v libx264 \
+  -profile:v main -pix_fmt yuv420p -crf 30 -preset slow \
+  -g 12 -keyint_min 12 -sc_threshold 0 -movflags +faststart \
+  public/media/plane-window-480.mp4
+
+# poster
+"$FF" -y -i public/media/plane-window-720.mp4 -frames:v 1 -q:v 5 \
+  public/media/plane-window-poster.jpg
+```
+
+Why those flags matter: `-g 12` puts a keyframe every 0.4s so scroll-seeking
+lands where you asked instead of snapping to a distant keyframe; `+faststart`
+moves the moov atom to the front so playback can begin before the download
+finishes; `-an` drops the audio track the muted player never uses; `-t 6.8`
+cuts before the Eiffel Tower rises into frame.
+
 ## TODO / next session
 
 - [ ] **Compress `plane-window.mp4`** — currently ~25 MB uncompressed. No ffmpeg
