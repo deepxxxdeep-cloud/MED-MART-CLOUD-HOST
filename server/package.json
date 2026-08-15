@@ -6,7 +6,9 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "dev:memory": "node dev-memory.mjs",
-    "test:smoke": "node smoke-test.mjs"
+    "test:smoke": "node smoke-test.mjs",
+    "test:filter": "node messageFilter.test.mjs",
+    "test:commerce": "node commerce.test.mjs"
   },
   "keywords": [],
   "author": "",
@@ -21,7 +23,8 @@
     "express-rate-limit": "^8.6.2",
     "express-validator": "^7.3.2",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.9.2"
+    "mongoose": "^9.9.2",
+    "razorpay": "^2.9.8"
   },
   "devDependencies": {
     "mongodb-memory-server": "^11.2.0",

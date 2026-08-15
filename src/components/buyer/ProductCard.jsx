@@ -80,19 +80,31 @@ export default function ProductCard({ product, showNewBadge = false }) {
 
           {/* Reveals on hover where there's a pointer; always visible on touch,
               since there is no hover state to reveal it with. */}
-          <motion.button
-            onClick={() => addToInquiry(product)}
-            whileTap={{ scale: 0.96 }}
-            transition={{ duration: 0.2, ease }}
-            className={`mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg py-2 text-[12.5px] font-semibold transition-all duration-300 ease-premium md:opacity-0 md:group-hover:opacity-100 ${
-              added
-                ? "bg-emerald-50 text-emerald-700 md:opacity-100"
-                : "bg-gradient-to-b from-orange to-orange-dark text-white shadow-glow-orange"
-            }`}
-          >
-            {added ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-            {added ? "In inquiry list" : "Add to Inquiry"}
-          </motion.button>
+          {/* The only two ways to reach a seller: an on-platform inquiry, or
+              an on-platform purchase. No phone or WhatsApp affordance exists
+              anywhere by design — off-platform contact removes the buyer
+              protection that the payment flow provides. */}
+          <div className="mt-3 flex gap-2 transition-all duration-300 ease-premium md:opacity-0 md:group-hover:opacity-100">
+            <motion.button
+              onClick={() => addToInquiry(product)}
+              whileTap={{ scale: 0.96 }}
+              transition={{ duration: 0.2, ease }}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-[12px] font-semibold ${
+                added
+                  ? "bg-emerald-50 text-emerald-700"
+                  : "border border-orange/50 text-orange hover:bg-orange-light"
+              }`}
+            >
+              {added ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+              {added ? "Added" : "Inquiry"}
+            </motion.button>
+            <Link
+              to={`/checkout/${product.id}`}
+              className="flex flex-1 items-center justify-center rounded-lg bg-gradient-to-b from-orange to-orange-dark py-2 text-[12px] font-semibold text-white shadow-glow-orange"
+            >
+              Buy Now
+            </Link>
+          </div>
         </div>
       </div>
     </TiltCard3D>

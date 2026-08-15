@@ -14,6 +14,7 @@ const TITLES = [
   ["/seller/inquiries", "Buyer Inquiries"],
   ["/seller/buy-requirements", "Buy Requirements"],
   ["/seller/orders", "Orders"],
+  ["/seller/revenue", "Revenue"],
   ["/seller/analytics", "Analytics"],
   ["/seller/profile", "Business Profile"],
   ["/seller/settings", "Settings"],

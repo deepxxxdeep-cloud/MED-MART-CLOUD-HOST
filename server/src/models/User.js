@@ -37,6 +37,25 @@ const userSchema = new mongoose.Schema(
 
     isVerified: { type: Boolean, default: false },
 
+    // Off-platform contact attempts. Counted rather than acted on immediately
+    // so a single mistyped message doesn't cost someone their account.
+    communicationViolations: { type: Number, default: 0 },
+    isFlagged: { type: Boolean, default: false, index: true },
+    flaggedAt: { type: Date },
+    isSuspended: { type: Boolean, default: false },
+
+    // Payout destination — only ever stored masked plus a token from the
+    // payment provider. Full account numbers stay with Razorpay.
+    payout: {
+      method: { type: String, enum: ["bank", "upi"] },
+      accountLast4: { type: String },
+      upiId: { type: String },
+      beneficiaryName: { type: String },
+      razorpayContactId: { type: String },
+      razorpayFundAccountId: { type: String },
+      verified: { type: Boolean, default: false },
+    },
+
     passwordResetToken: { type: String, select: false },
     passwordResetExpires: { type: Date, select: false },
   },
@@ -79,6 +98,16 @@ userSchema.methods.toPublic = function () {
     city: this.city,
     isVerified: this.isVerified,
     profilePicture: this.profilePicture,
+    communicationViolations: this.communicationViolations,
+    isFlagged: this.isFlagged,
+    payout: this.payout
+      ? {
+          method: this.payout.method,
+          accountLast4: this.payout.accountLast4,
+          upiId: this.payout.upiId,
+          verified: this.payout.verified,
+        }
+      : undefined,
     createdAt: this.createdAt,
   };
 };

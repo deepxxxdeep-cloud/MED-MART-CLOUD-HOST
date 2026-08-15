@@ -2,10 +2,20 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.routes.js";
+import messageRoutes from "./routes/message.routes.js";
+import orderRoutes from "./routes/order.routes.js";
+import revenueRoutes from "./routes/revenue.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
+import webhookRoutes from "./routes/webhook.routes.js";
 
 const app = express();
 
 app.set("trust proxy", 1);
+
+// Webhooks mount before the JSON parser: their signature is computed over the
+// raw bytes, and parsing would destroy them.
+app.use("/api/webhooks", webhookRoutes);
+
 app.use(express.json({ limit: "10kb" }));
 app.use(cookieParser());
 
@@ -19,6 +29,10 @@ app.use(
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 app.use("/api/auth", authRoutes);
+app.use("/api/messages", messageRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/revenue", revenueRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.use((_req, res) => res.status(404).json({ message: "Route not found" }));
 

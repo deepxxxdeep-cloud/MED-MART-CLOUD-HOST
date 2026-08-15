@@ -16,6 +16,9 @@ const Signup = lazy(() => import("./pages/Signup"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const BuyerHome = lazy(() => import("./pages/BuyerHome"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const OrderSuccess = lazy(() => import("./pages/OrderSuccess"));
+const FlaggedUsers = lazy(() => import("./pages/admin/FlaggedUsers"));
 
 const SellerLayout = lazy(() => import("./pages/seller/SellerLayout"));
 const Overview = lazy(() => import("./pages/seller/Overview"));
@@ -26,6 +29,8 @@ const BuyRequirements = lazy(() => import("./pages/seller/BuyRequirements"));
 const SellerAnalytics = lazy(() => import("./pages/seller/Analytics"));
 const SellerProfile = lazy(() => import("./pages/seller/Profile"));
 const SellerSettings = lazy(() => import("./pages/seller/Settings"));
+const SellerOrders = lazy(() => import("./pages/seller/Orders"));
+const SellerRevenue = lazy(() => import("./pages/seller/Revenue"));
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -50,6 +55,9 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Landing />} />
         <Route path="/shop" element={<BuyerHome />} />
+        <Route path="/checkout/:id" element={<Checkout />} />
+        <Route path="/order-success/:orderId" element={<OrderSuccess />} />
+        <Route path="/admin/flagged-users" element={<FlaggedUsers />} />
 
         {/* Seller dashboard — nested so the shell persists across sections */}
         <Route path="/seller" element={<SellerLayout />}>
@@ -58,6 +66,8 @@ function AnimatedRoutes() {
           <Route path="products/add" element={<AddProduct />} />
           <Route path="inquiries" element={<SellerInquiries />} />
           <Route path="buy-requirements" element={<BuyRequirements />} />
+          <Route path="orders" element={<SellerOrders />} />
+          <Route path="revenue" element={<SellerRevenue />} />
           <Route path="analytics" element={<SellerAnalytics />} />
           <Route path="profile" element={<SellerProfile />} />
           <Route path="settings" element={<SellerSettings />} />

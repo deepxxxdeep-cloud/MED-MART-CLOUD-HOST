@@ -190,7 +190,92 @@ setup the API is on a different domain, so `server/src/utils/token.js` needs
 
 ---
 
-## 6. Before production
+## 6. Razorpay — payments and payouts
+
+Nothing charges anyone until these keys exist. Until then `/checkout` shows
+"payments aren't switched on yet" and the API returns 503 rather than
+creating an unpaid order.
+
+### 6a. Account and test keys (start here)
+
+1. Sign up at https://dashboard.razorpay.com — use your business email.
+2. Stay in **Test Mode** (the toggle top-right). Test mode needs no KYC and
+   uses fake cards, so you can build the whole flow before going live.
+3. **Settings → API Keys → Generate Test Key.** You get a key id
+   (`rzp_test_…`) and a secret, shown **once** — copy both now.
+4. Put them in `server/.env`:
+   ```
+   RAZORPAY_KEY_ID=rzp_test_xxxxxxxx
+   RAZORPAY_KEY_SECRET=xxxxxxxxxxxx
+   PLATFORM_COMMISSION_RATE=0.06
+   ```
+   The key id is public — it ships in the browser to identify the merchant.
+   **The secret is server-only**; never put it in a `VITE_` variable.
+5. Add the checkout script to `index.html`, just before `</body>`:
+   ```html
+   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+   ```
+6. Test cards: `4111 1111 1111 1111`, any future expiry, any CVV. For UPI use
+   `success@razorpay`.
+
+### 6b. Webhook (do this before going live)
+
+The browser callback can't be trusted on its own — a buyer may close the tab
+or never return from a UPI app. Razorpay's webhook is what makes payment
+state converge anyway, and it retries until it gets a 2xx.
+
+1. **Settings → Webhooks → Add New Webhook.**
+2. URL: `https://<your-domain>/api/webhooks/razorpay`
+   (Vercel serves this from the same deployment.)
+3. Secret: invent a strong one and put it in `server/.env` as
+   `RAZORPAY_WEBHOOK_SECRET=…`
+4. Subscribe to: `payment.captured`, `payment.failed`, `refund.processed`.
+5. Local testing needs a public URL — run `npx localtunnel --port 5001` (or
+   ngrok) and point the webhook at that address.
+
+The route verifies Razorpay's signature over the **raw** request body, which
+is why it is mounted before the JSON parser in `app.js`. Don't move it.
+
+### 6c. Seller payouts (RazorpayX Route)
+
+This is how Amazon and Flipkart settle sellers: the platform receives the
+whole payment, holds it, and releases the seller's share after delivery.
+
+1. **Razorpay Dashboard → Route** (needs completed KYC; test mode first).
+2. Each seller becomes a **linked account**, created from the bank details on
+   their Business Profile page. Only the last four digits and Razorpay's
+   token are stored here — full account numbers stay with Razorpay.
+3. Settlement in this build: a payout becomes eligible when the seller marks
+   an order **delivered**, and batches run every 7 days.
+4. Commission is deducted at order creation and recorded per order, so a
+   later rate change never rewrites historical earnings.
+
+### 6d. Going live
+
+- Complete KYC, then **Settings → API Keys** in Live Mode for `rzp_live_…`
+  keys, and swap both the key and the webhook secret.
+- Point the webhook at the production domain.
+- Money is never taken from the client: the order routes recompute price,
+  total, commission and seller earning from the product record in the
+  database. A tampered amount in the request is ignored — there's a test
+  covering exactly this in `server/commerce.test.mjs`.
+
+---
+
+## 7. Admin access
+
+The flagged-accounts queue is gated by an email allow-list rather than a role
+field, so a privileged screen can't be reached just by signing up:
+
+```
+ADMIN_EMAILS=you@example.com,ops@example.com
+```
+
+Review UI is at `/admin/flagged-users`.
+
+---
+
+## 8. Before production
 
 - [ ] `NODE_ENV=production` (makes the auth cookie `secure`, so HTTPS required)
 - [ ] Regenerate `JWT_SECRET` (`openssl rand -hex 48`) — don't reuse the dev one

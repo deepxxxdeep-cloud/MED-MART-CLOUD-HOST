@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Archive, ArrowLeft, Check, MapPin, Paperclip, Send } from "lucide-react";
 import { INQUIRIES, timeAgo } from "../../data/sellerData";
+import { checkMessage } from "../../lib/messageGuard";
+import { SafetyBanner, BlockedNotice } from "../../components/seller/SafetyBanner";
 
 const TABS = ["All", "Unread", "Responded", "Archived"];
 
@@ -13,6 +15,8 @@ export default function Inquiries() {
   const [tab, setTab] = useState("All");
   const [activeId, setActiveId] = useState(INQUIRIES[0].id);
   const [reply, setReply] = useState("");
+  const [blocked, setBlocked] = useState(null);
+  const [violations, setViolations] = useState(0);
   // Mobile shows one panel at a time; desktop shows both.
   const [mobileThread, setMobileThread] = useState(false);
 
@@ -148,6 +152,8 @@ export default function Inquiries() {
             </div>
 
             <div className="flex-1 space-y-4 overflow-y-auto p-4">
+              <SafetyBanner />
+
               <div className="rounded-xl border border-navy/8 bg-surface p-3">
                 <p className="text-[11.5px] font-semibold text-navy/45">Enquired about</p>
                 <p className="mt-0.5 text-[13px] font-semibold text-orange">{active.product}</p>
@@ -179,7 +185,8 @@ export default function Inquiries() {
               )}
             </div>
 
-            <div className="border-t border-navy/8 p-3">
+            <div className="space-y-2.5 border-t border-navy/8 p-3">
+              <BlockedNotice verdict={blocked} violations={violations} />
               <div className="flex items-end gap-2">
                 <button
                   aria-label="Attach quote or catalogue"
@@ -190,12 +197,26 @@ export default function Inquiries() {
                 <textarea
                   rows={1}
                   value={reply}
-                  onChange={(e) => setReply(e.target.value)}
+                  onChange={(e) => {
+                    setReply(e.target.value);
+                    if (blocked) setBlocked(null);
+                  }}
                   placeholder="Write your response…"
-                  className="max-h-32 min-h-11 flex-1 resize-y rounded-lg border border-navy/12 px-3 py-2.5 text-[13.5px] text-navy outline-none focus:border-orange"
+                  className={`max-h-32 min-h-11 flex-1 resize-y rounded-lg border px-3 py-2.5 text-[13.5px] text-navy outline-none ${
+                    blocked ? "border-amber-400 bg-amber-50/40" : "border-navy/12 focus:border-orange"
+                  }`}
                 />
                 <button
                   onClick={() => {
+                    // Mirrors the server check so the refusal is immediate;
+                    // the server re-runs it and is the real gate.
+                    const verdict = checkMessage(reply);
+                    if (!verdict.allowed) {
+                      setViolations((v) => v + 1);
+                      setBlocked(verdict);
+                      return;
+                    }
+                    setBlocked(null);
                     setStatus(active.id, "responded");
                     setReply("");
                   }}

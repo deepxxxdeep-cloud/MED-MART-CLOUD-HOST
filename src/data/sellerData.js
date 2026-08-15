@@ -150,3 +150,82 @@ export const timeAgo = (minutes) => {
   if (h < 24) return `${h}h ago`;
   return `${Math.round(h / 24)}d ago`;
 };
+
+/** Revenue + payouts mock data. */
+const DAY_MS = 86400000;
+
+export const REVENUE_SERIES = Array.from({ length: 180 }, (_, i) => {
+  const d = new Date(Date.now() - (179 - i) * DAY_MS);
+  const base = 12000 + i * 95;
+  const weekly = Math.sin((i / 7) * Math.PI * 2) * 4200;
+  const noise = ((i * 53) % 17) * 260;
+  const revenue = Math.max(0, Math.round(base + weekly + noise));
+  return {
+    date: d.toISOString().slice(0, 10),
+    label: d.toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
+    month: d.toLocaleDateString("en-IN", { month: "short", year: "2-digit" }),
+    revenue,
+    orders: Math.max(1, Math.round(revenue / 9500)),
+  };
+});
+
+export const REVENUE_BY_CATEGORY = [
+  { name: "Surgical Instruments", value: 2840000 },
+  { name: "Orthopedic", value: 1420000 },
+  { name: "Disposables", value: 890000 },
+  { name: "Hospital Furniture", value: 460000 },
+  { name: "Lab Equipment", value: 210000 },
+];
+
+export const TOP_PRODUCTS_REVENUE = [
+  { name: "Surgical Instrument Kit — 20 Pieces", revenue: 1180000, units: 128 },
+  { name: "Titanium Bone Plate & Screw System", revenue: 940000, units: 62 },
+  { name: "Orthopedic Drill Machine Cordless", revenue: 620000, units: 10 },
+  { name: "Stainless Steel Surgical Scissors Set", revenue: 480000, units: 141 },
+  { name: "Absorbable Surgical Sutures — Box of 12", revenue: 320000, units: 78 },
+];
+
+export const REVENUE_BY_STATE = [
+  { state: "Maharashtra", revenue: 1480000, orders: 84 },
+  { state: "Delhi NCR", revenue: 1210000, orders: 71 },
+  { state: "Tamil Nadu", revenue: 890000, orders: 58 },
+  { state: "Karnataka", revenue: 740000, orders: 47 },
+  { state: "Gujarat", revenue: 610000, orders: 39 },
+  { state: "West Bengal", revenue: 430000, orders: 28 },
+];
+
+const TX = (id, daysAgo, buyer, product, amount, orderStatus, payoutStatus) => {
+  const commission = Math.round(amount * 0.06);
+  return {
+    orderId: id,
+    date: new Date(Date.now() - daysAgo * DAY_MS).toISOString().slice(0, 10),
+    buyer,
+    product,
+    amount,
+    commission,
+    net: amount - commission,
+    paymentStatus: "completed",
+    orderStatus,
+    payoutStatus,
+  };
+};
+
+export const TRANSACTIONS = [
+  TX("MM-2026-004821", 1, "Apex Multispecialty Hospital", "Surgical Instrument Kit — 20 Pieces", 368000, "processing", "pending"),
+  TX("MM-2026-004815", 3, "Crescent Care Hospital", "Absorbable Surgical Sutures — Box of 12", 84000, "shipped", "pending"),
+  TX("MM-2026-004802", 6, "Nair Ortho Clinic", "Orthopedic Drill Machine Cordless", 124000, "delivered", "scheduled"),
+  TX("MM-2026-004788", 9, "Sharma Diagnostics Pvt. Ltd.", "Titanium Bone Plate & Screw System", 158000, "delivered", "scheduled"),
+  TX("MM-2026-004771", 13, "MedTech Distributors", "Stainless Steel Surgical Scissors Set", 170000, "delivered", "paid"),
+  TX("MM-2026-004760", 18, "Rao Nursing Home", "Scalpel Blades #10 — Box of 100", 23400, "delivered", "paid"),
+  TX("MM-2026-004742", 24, "Lifeline Surgicals", "Retractor Set Self-Retaining", 64000, "delivered", "paid"),
+  TX("MM-2026-004730", 31, "Iyer Healthcare LLP", "Needle Holder Mayo-Hegar 18cm", 43500, "delivered", "paid"),
+];
+
+export const PAYOUTS = [
+  { payoutId: "PO-2026-0091", date: new Date(Date.now() - 4 * DAY_MS).toISOString().slice(0, 10), amount: 219960, orders: 3, status: "paid", accountLast4: "4412", method: "bank" },
+  { payoutId: "PO-2026-0084", date: new Date(Date.now() - 11 * DAY_MS).toISOString().slice(0, 10), amount: 181420, orders: 4, status: "paid", accountLast4: "4412", method: "bank" },
+  { payoutId: "PO-2026-0077", date: new Date(Date.now() - 18 * DAY_MS).toISOString().slice(0, 10), amount: 96300, orders: 2, status: "paid", accountLast4: "4412", method: "bank" },
+  { payoutId: "PO-2026-0070", date: new Date(Date.now() - 25 * DAY_MS).toISOString().slice(0, 10), amount: 142880, orders: 3, status: "paid", accountLast4: "4412", method: "bank" },
+];
+
+export const PAYOUT_SCHEDULE_DAYS = 7;
