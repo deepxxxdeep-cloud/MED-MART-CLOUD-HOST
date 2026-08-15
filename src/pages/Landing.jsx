@@ -7,12 +7,12 @@ import HowItWorks from "../components/HowItWorks";
 import Testimonials from "../components/Testimonials";
 import CTABanner from "../components/CTABanner";
 import Footer from "../components/Footer";
-import SiteBackgroundVideo from "../components/SiteBackgroundVideo";
+import SiteBackgroundSequence from "../components/SiteBackgroundSequence";
 
 export default function Landing() {
   return (
     <div className="relative min-h-screen font-sans text-gray-800">
-      <SiteBackgroundVideo />
+      <SiteBackgroundSequence />
       <Header />
       <main>
         <Hero />
