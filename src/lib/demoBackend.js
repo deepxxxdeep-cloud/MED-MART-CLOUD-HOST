@@ -2,15 +2,18 @@
  * In-browser stand-in for the API, so the whole product can be demonstrated
  * without a database or payment gateway.
  *
- * On by default. Point the app at the real server by setting
- * VITE_DEMO_MODE=false (and running server/ with Mongo + Razorpay keys) —
- * api.js then stops routing here entirely.
+ * OFF by default — every request goes to the real API. Opt back in with
+ * VITE_DEMO_MODE=true to demo the product without a database or gateway;
+ * api.js then routes here instead of over the network.
+ *
+ * Opt-in rather than opt-out on purpose: a build that silently fakes orders
+ * is the more dangerous default to ship.
  *
  * State lives in localStorage so a demo survives a refresh, which matters when
  * you sign up, close the tab, and want to still be logged in.
  */
 
-export const DEMO_MODE = import.meta.env.VITE_DEMO_MODE !== "false";
+export const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === "true";
 
 const KEY = "medmart_demo_v1";
 
